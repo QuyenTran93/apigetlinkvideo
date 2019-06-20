@@ -7,13 +7,15 @@ exports.getUrl = async (req, res) => {
     var uri = req.query.url;
     if (!!!uri)
       return res.json({ 'success': false, 'msg': 'Invalid Request!' });
+    if (!youtubeHelper.regexUrl.test(uri))
+      return res.json({ 'success': false, 'msg': 'Invalid Youtube URL' });
     var info = await youtubeHelper.getInfoAsync(uri);
     if (!!!info.url)
       return res.json({ 'success': false, 'msg': `Can't get link video!` });
-    console.log(info);
+    // console.log(info);
     return res.json({ 'success': true, 'msg': 'Get url of video success!', 'url': info.url });
   } catch (error) {
-    console.trace(error);
-    return res.json({ 'success': false, 'msg': 'System error. Please try again!' });
+    // console.trace(error);
+    return res.json({ 'success': false, 'msg': 'This video is unavailable.' });
   }
 }
