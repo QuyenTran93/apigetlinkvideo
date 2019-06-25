@@ -24,6 +24,13 @@ exports.getUrl = async (req, res) => {
       return res.json({ 'success': false, 'msg': 'Invalid Request!' });
     uri = uri.replace(/mbasic/, 'www');
     var regexUrl = /(?:https?:\/)?(?:www.|web.|m.)?facebook.com\/(?:video.php\?v=\d+|watch\/\?v=\d+|photo.php\?v=\d+|\?v=\d+|videos?\/(embed\?video_id=|vb.\d+\/?)(\d+))|\S+\/videos\/((\S+)\/(\d+)|(\d+))\/?/;
+
+    var regexEmbedUrl = /(https?:\/\/)?(www.)?(facebook\.com)\/(\S*\/)*(video\/(embed\?video_id=)?)(\d+)/;
+    if (regexEmbedUrl.test(uri)) {
+      var video_id = uri.match(/embed\?video_id=(\d+)/);
+      if (video_id)
+        uri = 'https://www.facebook.com/watch/?v='+video_id[1];
+    }
     if (!regexUrl.test(uri))
       return res.json({ 'success': false, 'msg': 'Can\'t Not Accepted Url!'});
     var rRequest = await ctrlGeneral.requestPromise({
@@ -41,7 +48,7 @@ exports.getUrl = async (req, res) => {
       'msg' : ''
     };
     if (!mSD && !mHD)
-      result.msg = 'No url of video were found...';
+      result.msg = 'Not found url of video...';
     else {
       result.msg = true;
       result.msg = 'Get url of video success!';
