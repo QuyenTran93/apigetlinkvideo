@@ -21,6 +21,7 @@ module.exports = function(app) {
   });
 
   app.use('/youtube', require('../controllers/youtube'));
+  app.use('/facebook', require('../controllers/facebook'));
 
   app.route('/*').get(function(req, res) {
     res.send(`Let's run baby...`);
