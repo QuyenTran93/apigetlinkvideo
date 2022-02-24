@@ -33,16 +33,20 @@ exports.getUrl = async (req, res) => {
     }
     if (!regexUrl.test(uri))
       return res.json({ 'success': false, 'msg': 'Can\'t Not Accepted Url!'});
+    // console.log(uri);
     var rRequest = await ctrlGeneral.requestPromise({
       'uri': uri,
       'headers': {
-        'user-agent': 'ozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.90 Safari/537.36'
+      	'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.80 Safari/537.36',
+        'cookie': 'sb=gah7YXn7APtmSN8jbj07_TeF; datr=gah7YSb5ExBAFeA2xSQQduQf; c_user=100008061092898; xs=35%3AXBxk7aOHBT8IkA%3A2%3A1639980513%3A-1%3A7478%3A%3AAcV4Xy3DtwRgXFt-w94kZ0DPj1lUwrBI1eVsDekRBmts; fr=0MozN18PSU0UXSWLE.AWWaX2L7Di5OdTraVzgEzeB51A4.BiF4hz.CZ.AAA.0.0.BiF4hz.AWWLNIrvhZA; presence=C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1645709583938%2C%22v%22%3A1%7D',
       }
     });
     var documentRequest = rRequest.body ? rRequest.body.toString('utf-8') : rRequest.body;
-    var mHD = documentRequest.match(/hd_src:"(.+?)"/);
-    var mSD = documentRequest.match(/sd_src:"(.+?)"/);
-
+    // console.log(documentRequest);
+    var mHD = documentRequest.match(/hd_src:"(.+?)"/) || documentRequest.match(/"playable_url_quality_hd":"(.+?)"/);
+    var mSD = documentRequest.match(/sd_src:"(.+?)"/) || documentRequest.match(/"playable_url":"(.+?)"/);
+    // console.log(mHD, mSD);
     var result = {
       'success': false,
       'msg' : ''
@@ -54,9 +58,9 @@ exports.getUrl = async (req, res) => {
       result.msg = 'Get url of video success!';
       result.urls = {};
       if (mSD)
-        result.urls.sd_src = mSD[1];
+        result.urls.sd_src = mSD[1].replace(/\\\//g, '/');
       if (mHD)
-        result.urls.hd_src = mHD[1];
+        result.urls.hd_src = mHD[1].replace(/\\\//g, '/');
     }
     return res.json(result);
   } catch (error) {
